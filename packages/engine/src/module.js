@@ -5,7 +5,12 @@ import {
   defineNuxtModule,
   resolvePath,
 } from '@nuxt/kit'
+import { dirname } from 'node:path'
 
+/**
+ * Универсальный Nuxt-модуль: не знает структуру хост-проекта.
+ * Хост передаёт реестр actions через tabletopEngine.actions → #tabletop-host-actions.
+ */
 export default defineNuxtModule({
   meta: {
     name: '@nast791/engine',
@@ -15,10 +20,9 @@ export default defineNuxtModule({
     },
   },
   defaults: {
-    // Префикс API-роутов
     apiPrefix: '/api/tabletop',
-    // Путь к хостовому реестру actions (default export: { TYPE: handler })
-    // Пример: '#shared/actions/registry.js'
+    // Путь к реестру хоста (default export: { TYPE: handler })
+    // Пример в проекте: '#shared/actions/index.js'
     actions: null,
   },
   setup: async (options, nuxt) => {
@@ -47,24 +51,23 @@ export default defineNuxtModule({
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.alias = nitroConfig.alias || {}
       nitroConfig.alias['#tabletop-host-actions'] = hostActionsPath
-      // Иначе Nitro тянет file:// → Node ESM-кэш, и правки place.js не видны без рестарта.
+
+      // Только переданный реестр — без знаний о shared/events/helpers проекта.
       nitroConfig.externals = nitroConfig.externals || {}
       const inline = new Set(nitroConfig.externals.inline || [])
       inline.add(hostActionsPath)
-      inline.add(/[/\\]shared[/\\]actions[/\\]/)
       nitroConfig.externals.inline = [...inline]
+
       nitroConfig.watch = nitroConfig.watch || []
       if (!nitroConfig.watch.includes(hostActionsPath)) {
         nitroConfig.watch.push(hostActionsPath)
       }
-      const actionsDir = hostActionsPath.replace(/[/\\][^/\\]+$/, '')
+      const actionsDir = dirname(hostActionsPath)
       if (actionsDir && !nitroConfig.watch.includes(actionsDir)) {
         nitroConfig.watch.push(actionsDir)
       }
     })
 
-    // Только внешние composables — автоимпорт в целевой проект.
-    // runtime/internal/composables не сканируется.
     addImportsDir(resolver.resolve('./runtime/composables'))
 
     addServerHandler({

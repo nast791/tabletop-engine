@@ -1,5 +1,12 @@
 # @nast791/engine
 
+## 0.4.3
+
+### Patch Changes
+
+- `state.combat` в clone/view; во время боя только `DEFEND`/`RESIGN`; `DEFEND` может слать защищающийся (не currentPlayer).
+- Модуль не привязан к `shared/` хоста: только `tabletopEngine.actions` → `#tabletop-host-actions`.
+
 ## 0.4.2
 
 ### Patch Changes

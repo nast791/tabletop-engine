@@ -51,7 +51,10 @@ export const usePhaseMachine = (options = {}) => {
       case PHASES.turnStart: {
         const prepared = {
           ...state,
-          actionsLeft: state.rules.actionsPerTurn,
+          actionsLeft: Number(state.rules?.actionsPerTurn) || 2,
+          movement: null,
+          handDiscard: null,
+          lastCombat: null,
         }
         const afterHook = hooks.onTurnStart(prepared)
         return { ...afterHook, phase: PHASES.turn }

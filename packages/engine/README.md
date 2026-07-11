@@ -18,12 +18,15 @@ export default defineNuxtConfig({
   tabletopEngine: {
     apiPrefix: '/api/tabletop',
     // Хостовые actions (default export: { PLACE: fn, MOVE: fn, … })
-    actions: '#shared/actions/registry.js',
+    actions: '#shared/actions/index.js',
   },
 })
 ```
 
 Handler: `(state, action, api) => state`. Сначала ищутся kernel-types, затем хост.
+
+Модуль **не импортирует** файлы проекта и не знает про `shared/` — только путь из `tabletopEngine.actions`.  
+Импорты внутри хост-actions (`#shared/...`) — ответственность Nuxt-проекта.
 
 ## Composables
 
