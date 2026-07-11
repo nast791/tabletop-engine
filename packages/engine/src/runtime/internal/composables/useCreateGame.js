@@ -6,6 +6,7 @@ import { useGameIdentity } from './useGameIdentity.js'
 /**
  * Внутренний composable: config → начальное состояние партии.
  * id и seed всегда формируются на сервере.
+ * Карточные зоны и раздача — только если у игрока есть deck/hand.
  */
 export const useCreateGame = () => {
   const { createConfigError, isConfigError } = useConfigError()
@@ -13,11 +14,16 @@ export const useCreateGame = () => {
   const { normalizePlayerSetup } = useNormalizePlayerSetup()
   const { createGameId, createSeed, stripSeed } = useGameIdentity()
 
-  // Раздать до handSize карт из колоды в руку (позже — детерминированно по seed).
+  const hasCardZones = (player) =>
+    Array.isArray(player.deck) || Array.isArray(player.hand)
+
+  // Раздача только для игроков с колодой; иначе контент не трогаем.
   const dealOpeningHands = (players, handSize) =>
     players.map((player) => {
-      const deck = [...(player.deck ?? [])]
-      const hand = [...(player.hand ?? [])]
+      if (!hasCardZones(player)) return { ...player }
+
+      const deck = Array.isArray(player.deck) ? [...player.deck] : []
+      const hand = Array.isArray(player.hand) ? [...player.hand] : []
       while (hand.length < handSize && deck.length > 0) {
         const card = deck.pop()
         if (card !== undefined) hand.push(card)
@@ -35,7 +41,6 @@ export const useCreateGame = () => {
       {
         map: config.map,
         rules: config.rules,
-        // seed с клиента отбрасываем — генерируем только здесь
         options: stripSeed(config.options),
       },
       players,

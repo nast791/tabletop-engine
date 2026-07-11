@@ -2,26 +2,19 @@ import { useState } from 'nuxt/app'
 import { STATE_KEYS } from '../constants/stateKeys.js'
 
 /**
- * Внешний composable: настройки игроков (слоты, герой, team, зоны-контент).
- * Автоимпорт в целевой проект.
+ * Внешний composable: слоты игроков (открытый контент).
+ * Engine фиксирует только id (и опционально team); остальное — с хоста.
  */
 export const usePlayerSetup = () => {
   const players = useState(STATE_KEYS.setupPlayers, () => [])
 
   const add = (player = {}) => {
     const index = players.value.length
+    const id = player.id != null ? String(player.id) : String(index)
     const next = {
-      id: player.id != null ? String(player.id) : String(index),
-      team: player.team ?? null,
-      type: player.type,
-      packId: player.packId,
-      name: player.name,
-      color: player.color,
-      deck: Array.isArray(player.deck) ? [...player.deck] : [],
-      hand: Array.isArray(player.hand) ? [...player.hand] : [],
-      discard: Array.isArray(player.discard) ? [...player.discard] : [],
       ...player,
-      id: player.id != null ? String(player.id) : String(index),
+      id,
+      ...(player.team !== undefined ? { team: player.team } : {}),
     }
     players.value = [...players.value, next]
     return next
@@ -49,10 +42,6 @@ export const usePlayerSetup = () => {
     })
   }
 
-  const setHero = (indexOrId, heroPatch) => {
-    update(indexOrId, heroPatch)
-  }
-
   const reset = () => {
     players.value = []
   }
@@ -68,7 +57,6 @@ export const usePlayerSetup = () => {
     add,
     remove,
     update,
-    setHero,
     reset,
     isReady,
     toObject,

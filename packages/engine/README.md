@@ -26,7 +26,7 @@ export default defineNuxtConfig({
 | Composable | Назначение |
 |------------|------------|
 | `useGameSetup` | настройки партии: map, rules, options, visibility |
-| `usePlayerSetup` | слоты игроков: герой, team, deck… |
+| `usePlayerSetup` | слоты игроков: id + открытый контент хоста |
 | `useGameView` | живая партия: `view` / `gameId` + create / action |
 | `useGameHelpers` | computed: `isMyTurn`, `relationTo`, `me`, … |
 
@@ -42,7 +42,7 @@ export default defineNuxtConfig({
 |------|------------|
 | `stateKeys.js` | ключи `useState` |
 | `visibility.js` | `DEFAULT_VISIBILITY`, зоны, relations |
-| `rules.js` | `DEFAULT_RULES` |
+| `player.js` | `CARD_ZONES`, `PLAYER_KERNEL_KEYS` |
 
 ### useState — ключи
 
@@ -62,14 +62,26 @@ export default defineNuxtConfig({
 - **id** — на сервере, в проект: `view.id` / `gameId` / `useGameSetup().id`
 - **seed** — только серверный `state.options.seed`, в view не отдаётся
 
+## Контент (открытая схема)
+
+Engine фиксирует только kernel:
+
+- партия: `id`, `map` (opaque object), `rules`, `options.seed` (сервер)
+- игрок: `id`, опционально `team`, опционально зоны `hand` / `deck` / `discard`
+
+Всё остальное (`fighters`, `items`, `class`, поля карты…) — контент хоста, проходит as-is в state/view.  
+Раздача и fog-of-war по картам работают **только** если зоны переданы массивами.
+
 ## Видимость зон
 
-`rules.visibility`: **self / teammate / enemy** × **hand / deck / discard** × `{ cards, count }`.
+`rules.visibility`: **self / teammate / enemy** × **hand / deck / discard** × `{ cards, count }`  
+(имеет смысл, когда у игроков есть карточные зоны).
 
 ## Хелперы
 
 ```js
-const { isMyTurn, me, currentPlayer, relationTo, isEnemy, myHeroes } = useGameHelpers()
+const { isMyTurn, me, currentPlayer, relationTo, isEnemy, findOwnerByList } =
+  useGameHelpers()
 ```
 
 ## Лобби → партия
@@ -79,8 +91,9 @@ const game = useGameSetup()
 const seats = usePlayerSetup()
 const { createFromSetup } = useGameView()
 
-game.setMap({ id: 'map-1', nodes: [] })
-seats.add({ id: '0', team: 'A', deck: [] })
+game.setMap({ id: 'map-1', /* любые поля пака */ })
+seats.add({ id: '0', team: 'A', deck: [/*…*/], fighters: [/*…*/] })
+seats.add({ id: '1', team: 'B', class: 'mage' }) // без карт — тоже ок
 await createFromSetup()
 ```
 

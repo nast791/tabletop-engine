@@ -1,5 +1,11 @@
 # @nast791/engine
 
+## 0.1.2
+
+### Patch Changes
+
+- Открытая схема контента: map/player as-is; карточные зоны опциональны; usePlayerSetup без UnPlugged-полей.
+
 ## 0.1.1
 
 ### Patch Changes
