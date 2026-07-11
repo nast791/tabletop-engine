@@ -74,16 +74,20 @@ export const useGameHelpers = () => {
     players.value.filter((p) => relationTo(p) !== 'self'),
   )
 
-  const findFighterOwner = (fighterId) => {
-    if (fighterId == null) return null
+  const findOwnerByList = (listKey, entityId) => {
+    if (entityId == null) return null
     for (const player of players.value) {
-      const fighters = player.fighters ?? []
-      if (fighters.some((f) => String(f.id) === String(fighterId))) {
+      const list = player[listKey]
+      if (!Array.isArray(list)) continue
+      if (list.some((item) => String(item?.id) === String(entityId))) {
         return player
       }
     }
     return null
   }
+
+  /** Опциональный контент: fighters с id (если хост так кладёт). */
+  const findFighterOwner = (fighterId) => findOwnerByList('fighters', fighterId)
 
   const isMyFighter = (fighterId) => {
     const owner = findFighterOwner(fighterId)
@@ -100,20 +104,18 @@ export const useGameHelpers = () => {
     return owner ? relationTo(owner) : 'enemy'
   }
 
-  const myHeroes = computed(() =>
-    (me.value?.fighters ?? []).filter((f) => f.type === 'hero'),
-  )
-
   const canSeeCards = (ownerId, zone) => {
     const player = findPlayer(ownerId)
     if (!player) return false
-    const cards = player[zone]
-    return Array.isArray(cards)
+    return Array.isArray(player[zone])
   }
 
   const zoneCount = (ownerId, zone) => {
     const player = findPlayer(ownerId)
     if (!player) return undefined
+    if (!Array.isArray(player[zone]) && player[`${zone}Count`] === undefined) {
+      return undefined
+    }
     const countKey = `${zone}Count`
     if (player[countKey] !== undefined) return player[countKey]
     const cards = player[zone]
@@ -138,11 +140,11 @@ export const useGameHelpers = () => {
     enemies,
     opponents,
     findPlayer,
+    findOwnerByList,
     findFighterOwner,
     isMyFighter,
     isEnemyFighter,
     relationToFighter,
-    myHeroes,
     canSeeCards,
     zoneCount,
   }

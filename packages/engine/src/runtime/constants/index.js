@@ -1,3 +1,4 @@
 export { STATE_KEYS } from './stateKeys.js'
 export { ZONES, RELATIONS, DEFAULT_VISIBILITY } from './visibility.js'
 export { DEFAULT_RULES } from './rules.js'
+export { CARD_ZONES, PLAYER_KERNEL_KEYS } from './player.js'

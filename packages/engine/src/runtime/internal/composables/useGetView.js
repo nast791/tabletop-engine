@@ -1,7 +1,10 @@
+import { CARD_ZONES } from '../../constants/player.js'
 import { useZoneVisibility } from './useZoneVisibility.js'
 
 /**
- * Внутренний composable: полное state → view (туман войны по visibility + grants).
+ * Внутренний composable: полное state → view.
+ * Карточные зоны маскируются только если они есть у игрока.
+ * Прочий контент (fighters, items, class…) уходит as-is.
  */
 export const useGetView = () => {
   const { canSee } = useZoneVisibility()
@@ -15,29 +18,24 @@ export const useGetView = () => {
   }
 
   const maskPlayer = (state, player, viewerId) => {
-    const hand = maskZone(player.hand, canSee(state, viewerId, player.id, 'hand'))
-    const deck = maskZone(player.deck, canSee(state, viewerId, player.id, 'deck'))
-    const discard = maskZone(
-      player.discard,
-      canSee(state, viewerId, player.id, 'discard'),
-    )
-
     const publicFields = Object.fromEntries(
-      Object.entries(player).filter(
-        ([key]) => !['deck', 'hand', 'discard'].includes(key),
-      ),
+      Object.entries(player).filter(([key]) => !CARD_ZONES.includes(key)),
     )
 
-    return {
+    const masked = {
       ...publicFields,
       id: player.id,
-      hand: hand.cards,
-      handCount: hand.count,
-      deck: deck.cards,
-      deckCount: deck.count,
-      discard: discard.cards,
-      discardCount: discard.count,
     }
+
+    for (const zone of CARD_ZONES) {
+      if (!Array.isArray(player[zone])) continue
+      const see = canSee(state, viewerId, player.id, zone)
+      const result = maskZone(player[zone], see)
+      masked[zone] = result.cards
+      masked[`${zone}Count`] = result.count
+    }
+
+    return masked
   }
 
   const getView = (state, playerId) => {
@@ -58,7 +56,6 @@ export const useGetView = () => {
         startingPlayer: state.rules.startingPlayer,
         actionsPerTurn: state.rules.actionsPerTurn,
         handSize: state.rules.handSize,
-        // visibility в view — чтобы UI знал политику; grants отдельно
         visibility: state.rules.visibility,
       },
       map: { ...state.map },
