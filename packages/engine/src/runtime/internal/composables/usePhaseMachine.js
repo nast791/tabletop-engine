@@ -1,16 +1,16 @@
-import {
-  ACTION_TYPES,
-  INTERACTIVE_PHASES,
-  PHASES,
-} from '../../constants/phases.js'
+import { INTERACTIVE_PHASES, PHASES } from '../../constants/phases.js'
+import { mergePhaseHooks } from './usePhaseHooks.js'
 
 const MAX_DRAIN_STEPS = 32
 
 /**
  * Внутренний: авто-переходы kernel-фаз.
  * gameStart / turnStart / turnEnd схлопываются до turn или gameEnd.
+ * Хуки onTurnStart / onTurnEnd / … пока no-op.
  */
-export const usePhaseMachine = () => {
+export const usePhaseMachine = (options = {}) => {
+  const hooks = mergePhaseHooks(options.hooks)
+
   const isInteractive = (phase) => INTERACTIVE_PHASES.includes(phase)
 
   const nextPlayerId = (state) => {
@@ -24,28 +24,47 @@ export const usePhaseMachine = () => {
   const hasWinner = (state) =>
     state.winner !== false && state.winner != null
 
+  const enterTurnEnd = (state) => ({
+    ...state,
+    phase: PHASES.turnEnd,
+  })
+
+  const enterGameEnd = (state, winner) => {
+    const next = {
+      ...state,
+      winner: winner === undefined ? state.winner : winner,
+      actionsLeft: 0,
+      phase: PHASES.gameEnd,
+    }
+    return hooks.onGameEnd(next)
+  }
+
   /** Один шаг авто-фазы (неинтерактивной). */
   const stepPhase = (state) => {
     switch (state.phase) {
-      case PHASES.gameStart:
-        // Хук onGameStart — позже; раздача уже в create.
-        return { ...state, phase: PHASES.turnStart }
+      case PHASES.gameStart: {
+        const afterHook = hooks.onGameStart(state)
+        return { ...afterHook, phase: PHASES.turnStart }
+      }
 
-      case PHASES.turnStart:
-        return {
+      case PHASES.turnStart: {
+        const prepared = {
           ...state,
           actionsLeft: state.rules.actionsPerTurn,
-          phase: PHASES.turn,
         }
+        const afterHook = hooks.onTurnStart(prepared)
+        return { ...afterHook, phase: PHASES.turn }
+      }
 
       case PHASES.turnEnd: {
-        if (hasWinner(state)) {
-          return { ...state, phase: PHASES.gameEnd, actionsLeft: 0 }
+        const afterHook = hooks.onTurnEnd(state)
+        if (hasWinner(afterHook)) {
+          return enterGameEnd(afterHook, afterHook.winner)
         }
         return {
-          ...state,
-          currentPlayer: nextPlayerId(state),
-          turn: state.turn + 1,
+          ...afterHook,
+          currentPlayer: nextPlayerId(afterHook),
+          turn: afterHook.turn + 1,
           phase: PHASES.turnStart,
         }
       }
@@ -83,17 +102,13 @@ export const usePhaseMachine = () => {
     return next
   }
 
-  const enterTurnEnd = (state) => ({
-    ...state,
-    phase: PHASES.turnEnd,
-  })
-
   return {
     PHASES,
-    ACTION_TYPES,
+    hooks,
     isInteractive,
     nextPlayerId,
     drainPhases,
     enterTurnEnd,
+    enterGameEnd,
   }
 }

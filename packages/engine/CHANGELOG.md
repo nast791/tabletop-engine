@@ -1,5 +1,11 @@
 # @nast791/engine
 
+## 0.3.0
+
+### Minor Changes
+
+- Kernel-actions SET_WINNER/RESIGN + реестр internal/actions; хуки фаз onTurnStart/onTurnEnd (no-op); авто-цикл фаз.
+
 ## 0.2.0
 
 ### Minor Changes
