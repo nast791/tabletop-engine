@@ -11,8 +11,9 @@
     "clean": "pnpm -r --filter=@nast791/* run --if-present clean",
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only && pnpm install",
-    "release": "pnpm build && changeset publish",
-    "release:dry": "pnpm build && changeset publish --dry-run"
+    "release": "pnpm build && changeset publish && node scripts/github-releases-from-changelog.mjs",
+    "release:dry": "pnpm build && changeset publish --dry-run",
+    "release:notes": "node scripts/github-releases-from-changelog.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "2.31.0"

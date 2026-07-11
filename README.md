@@ -50,9 +50,15 @@ node packages/engine/bin/tabletop-engine.mjs setup --link --cwd ../YourApp
 
 ## Релиз
 
-1. Classic PAT GitHub: `write:packages`, `read:packages`, `repo`
-2. `GITHUB_TOKEN=ghp_…` в окружении (не коммитить токен)
-3. `pnpm changeset` → merge → `pnpm version-packages` → commit
-4. `pnpm release`
+1. Classic PAT: `write:packages`, `read:packages`, `repo` (в `%USERPROFILE%\.npmrc`)
+2. `pnpm changeset` → merge → `pnpm version-packages` → commit → push
+3. `pnpm release` — publish в GitHub Packages **и** GitHub Release с текстом из CHANGELOG (changeset)
 
-Репозиторий должен быть на GitHub под user/org `nast791` (совпадает со scope пакета).
+Описание версии на GitHub («About this version») берётся из **Release notes**, не из npm-метаданных.  
+После первой публикации на странице пакета нажмите **Connect repository** → `nast791/tabletop-engine` — подтянется README репозитория.
+
+Дописать notes к уже опубликованным версиям:
+
+```powershell
+pnpm release:notes
+```
