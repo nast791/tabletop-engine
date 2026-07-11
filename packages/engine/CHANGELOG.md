@@ -1,5 +1,11 @@
 # @nast791/engine
 
+## 0.2.0
+
+### Minor Changes
+
+- Авто-цикл фаз: gameStart/turnStart/turn/turnEnd/gameEnd, END_TURN и SPEND_ACTION, actionsLeft в state/view.
+
 ## 0.1.2
 
 ### Patch Changes

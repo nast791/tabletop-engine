@@ -32,9 +32,15 @@ export const useGameHelpers = () => {
 
   const turn = computed(() => view.value?.turn ?? 0)
 
+  const phase = computed(() => view.value?.phase ?? null)
+
+  const actionsLeft = computed(() => view.value?.actionsLeft ?? 0)
+
   const winner = computed(() => view.value?.winner ?? false)
 
   const hasWinner = computed(() => winner.value !== false && winner.value != null)
+
+  const isGameOver = computed(() => phase.value === 'gameEnd' || hasWinner.value)
 
   const relationTo = (playerIdOrPlayer) => {
     const ownerId =
@@ -130,8 +136,11 @@ export const useGameHelpers = () => {
     players,
     isMyTurn,
     turn,
+    phase,
+    actionsLeft,
     winner,
     hasWinner,
+    isGameOver,
     relationTo,
     isMe,
     isTeammate,

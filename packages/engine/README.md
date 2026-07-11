@@ -32,7 +32,7 @@ export default defineNuxtConfig({
 
 ### Внутренние (без автоимпорта)
 
-`useCreateGame`, `useApply`, `useGetView`, `useZoneVisibility`, `useNormalizeGameSetup`, `useNormalizePlayerSetup`, `useBuildGameConfig`, `usePartyStore`, `useGameApi`, `useConfigError`, `useGameIdentity`
+`useCreateGame`, `useApply`, `useGetView`, `usePhaseMachine`, `useZoneVisibility`, `useNormalizeGameSetup`, `useNormalizePlayerSetup`, `useBuildGameConfig`, `usePartyStore`, `useGameApi`, `useConfigError`, `useGameIdentity`
 
 ## Константы
 
@@ -43,6 +43,8 @@ export default defineNuxtConfig({
 | `stateKeys.js` | ключи `useState` |
 | `visibility.js` | `DEFAULT_VISIBILITY`, зоны, relations |
 | `player.js` | `CARD_ZONES`, `PLAYER_KERNEL_KEYS` |
+| `phases.js` | `PHASES`, `INTERACTIVE_PHASES`, `ACTION_TYPES` |
+| `rules.js` | `DEFAULT_RULES` |
 
 ### useState — ключи
 
@@ -62,6 +64,23 @@ export default defineNuxtConfig({
 - **id** — на сервере, в проект: `view.id` / `gameId` / `useGameSetup().id`
 - **seed** — только серверный `state.options.seed`, в view не отдаётся
 
+## Фазы (авто-движок)
+
+Kernel-цикл: `gameStart` → `turnStart` → `turn` → `turnEnd` → … → `gameEnd`.
+
+- После `create` движок сам доходит до **`turn`** (промежуточные фазы не ждут UI).
+- Интерактивны только `turn` и `gameEnd`.
+- `END_TURN` → `turnEnd` → следующий игрок → `turnStart` → `turn`.
+- `SPEND_ACTION` тратит 1 очко; при `actionsLeft === 0` — авто `END_TURN`.
+- Контент-фазы (расстановка, атака…) — не в kernel.
+
+```js
+await sendAction({ type: 'END_TURN' })
+await sendAction({ type: 'SPEND_ACTION' })
+```
+
+Во view: `phase`, `actionsLeft`, `turn`, `currentPlayer`.
+
 ## Контент (открытая схема)
 
 Engine фиксирует только kernel:
@@ -80,7 +99,7 @@ Engine фиксирует только kernel:
 ## Хелперы
 
 ```js
-const { isMyTurn, me, currentPlayer, relationTo, isEnemy, findOwnerByList } =
+const { isMyTurn, phase, actionsLeft, isGameOver, me, relationTo } =
   useGameHelpers()
 ```
 

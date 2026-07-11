@@ -52,6 +52,8 @@ export const useGetView = () => {
       you: String(playerId),
       currentPlayer: state.currentPlayer,
       turn: state.turn,
+      phase: state.phase,
+      actionsLeft: state.actionsLeft,
       rules: {
         startingPlayer: state.rules.startingPlayer,
         actionsPerTurn: state.rules.actionsPerTurn,
