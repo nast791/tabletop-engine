@@ -1,5 +1,11 @@
 # @nast791/engine
 
+## 0.1.1
+
+### Patch Changes
+
+- Включить README.md и CHANGELOG.md в опубликованный пакет (документация версии на GitHub Packages).
+
 ## 0.1.0
 
 ### Minor Changes
