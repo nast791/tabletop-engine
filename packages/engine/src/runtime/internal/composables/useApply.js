@@ -1,4 +1,6 @@
-import { ACTION_TYPES, PHASES } from '../../constants/phases.js'
+import { ACTION_TYPES } from '../../constants/actions.js'
+import { PHASES } from '../../constants/phases.js'
+import { getKernelHandler } from '../actions/index.js'
 import { usePhaseMachine } from './usePhaseMachine.js'
 
 /**
@@ -6,7 +8,7 @@ import { usePhaseMachine } from './usePhaseMachine.js'
  * Не автоимпортируется в целевой проект.
  */
 export const useApply = () => {
-  const { drainPhases, enterTurnEnd } = usePhaseMachine()
+  const { drainPhases, enterTurnEnd, enterGameEnd } = usePhaseMachine()
 
   const cloneShell = (state) => ({
     ...state,
@@ -15,6 +17,13 @@ export const useApply = () => {
     rules: { ...state.rules },
     options: { ...state.options },
   })
+
+  const assertPlayerInParty = (state, playerId) => {
+    const ok = state.players.some((p) => String(p.id) === String(playerId))
+    if (!ok) {
+      throw new Error(`action.playerId "${playerId}" нет в этой партии`)
+    }
+  }
 
   const apply = (state, action) => {
     if (!state || typeof state !== 'object') {
@@ -32,38 +41,29 @@ export const useApply = () => {
         `ходы принимаются только в phase=turn, сейчас "${state.phase}"`,
       )
     }
-    if (String(action.playerId) !== String(state.currentPlayer)) {
+
+    assertPlayerInParty(state, action.playerId)
+
+    // RESIGN может любой участник; остальное — только currentPlayer.
+    if (action.type !== ACTION_TYPES.RESIGN) {
+      if (String(action.playerId) !== String(state.currentPlayer)) {
+        throw new Error(
+          `action.playerId "${action.playerId}" не совпадает с currentPlayer "${state.currentPlayer}"`,
+        )
+      }
+    }
+
+    const handler = getKernelHandler(action.type)
+    if (!handler) {
       throw new Error(
-        `action.playerId "${action.playerId}" не совпадает с currentPlayer "${state.currentPlayer}"`,
+        `неизвестный action.type "${action.type}" (kernel: ${Object.keys(ACTION_TYPES).join(', ')})`,
       )
     }
 
-    let next = cloneShell(state)
-
-    switch (action.type) {
-      case ACTION_TYPES.END_TURN:
-        next = enterTurnEnd(next)
-        break
-
-      case ACTION_TYPES.SPEND_ACTION: {
-        if (next.actionsLeft <= 0) {
-          throw new Error('actionsLeft уже 0')
-        }
-        next = {
-          ...next,
-          actionsLeft: next.actionsLeft - 1,
-        }
-        if (next.actionsLeft === 0) {
-          next = enterTurnEnd(next)
-        }
-        break
-      }
-
-      default:
-        throw new Error(
-          `неизвестный action.type "${action.type}" (kernel: END_TURN, SPEND_ACTION)`,
-        )
-    }
+    const next = handler(cloneShell(state), action, {
+      enterTurnEnd,
+      enterGameEnd,
+    })
 
     return drainPhases(next)
   }
