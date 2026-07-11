@@ -27,9 +27,12 @@ export default defineEventHandler(async (event) => {
     saveParty(next)
     return getView(next, body.action.playerId)
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Ошибка хода'
     throw createError({
       statusCode: 400,
-      message: error instanceof Error ? error.message : 'Ошибка хода',
+      // Не дублировать в statusMessage — h3/ofetch иначе показывают только "Bad Request".
+      message,
+      data: { message },
     })
   }
 })

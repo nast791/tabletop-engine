@@ -71,6 +71,10 @@ export const useCreateGame = () => {
       winner: false,
       visibilityGrants: [],
       logSeq: 0,
+      combat: null,
+      movement: null,
+      handDiscard: null,
+      lastCombat: null,
     }
 
     // Останавливается на gameStart (интерактив: расстановка), пока хост не сдвинет фазу.
