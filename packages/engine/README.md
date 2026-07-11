@@ -1,6 +1,23 @@
-# @tabletop-engine/engine
+# @nast791/engine
 
-Nuxt-модуль движка настольной партии (JavaScript).
+Nuxt-модуль движка настольной партии (JavaScript). Публикация: **GitHub Packages**.
+
+## Установка в проект
+
+CLI сам допишет `.npmrc` в целевом проекте (`@nast791:registry=…`).  
+Токен auth — только в `%USERPROFILE%\.npmrc` (`read:packages`).
+
+```bash
+pnpm add @nast791/engine
+# или
+pnpm dlx --package @nast791/engine tabletop-engine setup
+```
+```js
+export default defineNuxtConfig({
+  modules: ['@nast791/engine'],
+  tabletopEngine: { apiPrefix: '/api/tabletop' },
+})
+```
 
 ## Composables
 
@@ -17,9 +34,9 @@ Nuxt-модуль движка настольной партии (JavaScript).
 
 `useCreateGame`, `useApply`, `useGetView`, `useZoneVisibility`, `useNormalizeGameSetup`, `useNormalizePlayerSetup`, `useBuildGameConfig`, `usePartyStore`, `useGameApi`, `useConfigError`, `useGameIdentity`
 
-## useState — реестр ключей
+## Константы
 
-Источник правды: `src/runtime/constants/` (импорт `@tabletop-engine/engine/constants`).
+`src/runtime/constants/` → `@nast791/engine/constants`
 
 | Файл | Содержимое |
 |------|------------|
@@ -53,18 +70,6 @@ Nuxt-модуль движка настольной партии (JavaScript).
 
 ```js
 const { isMyTurn, me, currentPlayer, relationTo, isEnemy, myHeroes } = useGameHelpers()
-
-isMyTurn.value
-relationTo(player.id) // 'self' | 'teammate' | 'enemy'
-```
-
-## Подключение
-
-```js
-export default defineNuxtConfig({
-  modules: ['@tabletop-engine/engine'],
-  tabletopEngine: { apiPrefix: '/api/tabletop' },
-})
 ```
 
 ## Лобби → партия
@@ -73,11 +78,9 @@ export default defineNuxtConfig({
 const game = useGameSetup()
 const seats = usePlayerSetup()
 const { createFromSetup } = useGameView()
-const { isMyTurn } = useGameHelpers()
 
 game.setMap({ id: 'map-1', nodes: [] })
 seats.add({ id: '0', team: 'A', deck: [] })
-seats.add({ id: '1', team: 'B', deck: [] })
 await createFromSetup()
 ```
 
@@ -88,3 +91,11 @@ await createFromSetup()
 | POST | `{apiPrefix}/create` |
 | POST | `{apiPrefix}/action` |
 | GET | `{apiPrefix}/view?gameId=&playerId=` |
+
+## Публикация (maintainers)
+
+```bash
+# PAT classic: write:packages, read:packages, repo
+$env:GITHUB_TOKEN = "ghp_…"   # PowerShell
+pnpm release
+```

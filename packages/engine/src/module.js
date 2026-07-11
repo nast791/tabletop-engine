@@ -7,7 +7,7 @@ import {
 
 export default defineNuxtModule({
   meta: {
-    name: '@tabletop-engine/engine',
+    name: '@nast791/engine',
     configKey: 'tabletopEngine',
     compatibility: {
       nuxt: '>=3.0.0',

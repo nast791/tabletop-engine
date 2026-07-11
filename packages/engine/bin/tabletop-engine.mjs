@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * CLI для установки пакетов @tabletop-engine/* в целевой проект.
+ * CLI для установки пакетов @nast791/* в целевой проект.
  *
- *   pnpm dlx --package @tabletop-engine/engine tabletop-engine setup
+ *   pnpm dlx --package @nast791/engine tabletop-engine setup
  *   pnpm exec tabletop-engine update
  *   pnpm exec tabletop-engine update engine
  *
- * Пишет скрипты в package.json, ставит пакет (+ peers / runtime-зависимости)
+ * Пишет скрипты и .npmrc в целевой проект, ставит пакет (+ peers / runtime-зависимости)
  * и обновляет pnpm-lock.yaml.
  */
 import { spawnSync } from 'node:child_process'
@@ -22,13 +22,57 @@ const THIS_PKG = JSON.parse(readFileSync(join(PKG_ROOT, 'package.json'), 'utf8')
 // Каталог публикуемых пакетов (расширять по мере роста монорепо).
 const CATALOG = {
   engine: {
-    name: '@tabletop-engine/engine',
+    name: '@nast791/engine',
     scriptKey: 'tabletop-engine:update:engine',
   },
 }
 
 const SCRIPT_UPDATE_ALL = 'tabletop-engine:update'
 const SCRIPT_SETUP = 'tabletop-engine:setup'
+const GITHUB_PACKAGES_REGISTRY = 'https://npm.pkg.github.com'
+
+const scopesFromEntries = (entries) => [
+  ...new Set(entries.map((e) => e.name.split('/')[0]).filter(Boolean)),
+]
+
+/**
+ * В целевом проекте создать/дополнить .npmrc (registry для scope).
+ * Токен не пишем — он в user ~/.npmrc.
+ */
+const ensureNpmrc = (cwd, entries) => {
+  const npmrcPath = join(cwd, '.npmrc')
+  let content = existsSync(npmrcPath) ? readFileSync(npmrcPath, 'utf8') : ''
+  const lines = content.split(/\r?\n/).map((l) => l.trimEnd())
+  const toAdd = []
+
+  for (const scope of scopesFromEntries(entries)) {
+    const prefix = `${scope}:registry=`
+    const already = lines.some((l) => l.trim().startsWith(prefix))
+    if (!already) {
+      toAdd.push(`${scope}:registry=${GITHUB_PACKAGES_REGISTRY}`)
+    }
+  }
+
+  if (toAdd.length === 0) {
+    console.log(`.npmrc уже содержит нужные registry (${npmrcPath})`)
+    return
+  }
+
+  const block = [
+    '',
+    '# GitHub Packages — токен только в %USERPROFILE%\\.npmrc',
+    ...toAdd,
+    '',
+  ].join('\n')
+
+  const next =
+    content.length === 0
+      ? `${toAdd.join('\n')}\n`
+      : `${content.replace(/\s*$/, '')}${block}`
+
+  writeFileSync(npmrcPath, next, 'utf8')
+  console.log(`Обновлён .npmrc: ${npmrcPath}`)
+}
 
 const usage = () => {
   console.log(`Использование:
@@ -257,15 +301,17 @@ const main = () => {
 
   if (args.command === 'setup') {
     ensureScripts(pkgPath, entries)
+    ensureNpmrc(args.cwd, entries)
     installPackages(args.cwd, entries, args)
     console.log('Установка завершена.')
     console.log(
-      "Добавьте модуль в nuxt.config: modules: ['@tabletop-engine/engine']",
+      "Добавьте модуль в nuxt.config: modules: ['@nast791/engine']",
     )
     return
   }
 
   ensureScripts(pkgPath, entries)
+  ensureNpmrc(args.cwd, entries)
   updatePackages(args.cwd, entries, args)
   console.log('Обновление завершено.')
 }

@@ -1,4 +1,4 @@
-# @tabletop-engine/engine
+# @nast791/engine
 
 ## 0.1.0
 
