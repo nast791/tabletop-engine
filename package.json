@@ -1,0 +1,20 @@
+{
+  "name": "tabletop-engine",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter=@tabletop-engine/* run --if-present build",
+    "clean": "pnpm -r --filter=@tabletop-engine/* run --if-present clean",
+    "changeset": "changeset",
+    "version-packages": "changeset version && pnpm install --lockfile-only && pnpm install",
+    "release": "pnpm build && changeset publish",
+    "release:dry": "pnpm build && changeset publish --dry-run"
+  },
+  "devDependencies": {
+    "@changesets/cli": "2.31.0"
+  }
+}
