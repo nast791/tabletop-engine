@@ -1,4 +1,4 @@
-/** Универсальный жизненный цикл партии (не контент-фазы вроде placement/attack). */
+/** Универсальный жизненный цикл партии (не контент-фазы вроде attack). */
 export const PHASES = {
   gameStart: 'gameStart',
   turnStart: 'turnStart',
@@ -7,5 +7,8 @@ export const PHASES = {
   gameEnd: 'gameEnd',
 }
 
-/** Фазы, на которых ждут игрока / UI. Остальные движок прогоняет сам. */
-export const INTERACTIVE_PHASES = [PHASES.turn, PHASES.gameEnd]
+/**
+ * Фазы с ожиданием UI.
+ * gameStart — расстановка / подготовка хоста; turn — ходы; gameEnd — итог.
+ */
+export const INTERACTIVE_PHASES = [PHASES.gameStart, PHASES.turn, PHASES.gameEnd]

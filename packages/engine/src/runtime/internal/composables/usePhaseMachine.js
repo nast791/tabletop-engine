@@ -5,7 +5,8 @@ const MAX_DRAIN_STEPS = 32
 
 /**
  * Внутренний: авто-переходы kernel-фаз.
- * gameStart / turnStart / turnEnd схлопываются до turn или gameEnd.
+ * gameStart / turnStart / turnEnd: gameStart интерактивен (ждёт UI);
+ * turnStart / turnEnd схлопываются до turn или gameEnd.
  * Хуки onTurnStart / onTurnEnd / … пока no-op.
  */
 export const usePhaseMachine = (options = {}) => {
