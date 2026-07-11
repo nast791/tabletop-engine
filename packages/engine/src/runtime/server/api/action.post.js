@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     throw createError({
       statusCode: 400,
-      statusMessage: error instanceof Error ? error.message : 'Ошибка хода',
+      message: error instanceof Error ? error.message : 'Ошибка хода',
     })
   }
 })

@@ -5,6 +5,8 @@
 ### Patch Changes
 
 - В `gameStart` view скрывает `position` чужих fighters до перехода в `turn`.
+- Host actions инлайнятся в Nitro (не `file://` ESM-кэш) + watch на каталог actions.
+- API `/action`: ошибка через `message`, не `statusMessage` (кириллица).
 
 ## 0.4.1
 

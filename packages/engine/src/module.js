@@ -47,6 +47,20 @@ export default defineNuxtModule({
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.alias = nitroConfig.alias || {}
       nitroConfig.alias['#tabletop-host-actions'] = hostActionsPath
+      // Иначе Nitro тянет file:// → Node ESM-кэш, и правки place.js не видны без рестарта.
+      nitroConfig.externals = nitroConfig.externals || {}
+      const inline = new Set(nitroConfig.externals.inline || [])
+      inline.add(hostActionsPath)
+      inline.add(/[/\\]shared[/\\]actions[/\\]/)
+      nitroConfig.externals.inline = [...inline]
+      nitroConfig.watch = nitroConfig.watch || []
+      if (!nitroConfig.watch.includes(hostActionsPath)) {
+        nitroConfig.watch.push(hostActionsPath)
+      }
+      const actionsDir = hostActionsPath.replace(/[/\\][^/\\]+$/, '')
+      if (actionsDir && !nitroConfig.watch.includes(actionsDir)) {
+        nitroConfig.watch.push(actionsDir)
+      }
     })
 
     // Только внешние composables — автоимпорт в целевой проект.
