@@ -1,7 +1,9 @@
+import { PHASES } from '../../constants/phases.js'
 import { useConfigError } from './useConfigError.js'
 import { useNormalizeGameSetup } from './useNormalizeGameSetup.js'
 import { useNormalizePlayerSetup } from './useNormalizePlayerSetup.js'
 import { useGameIdentity } from './useGameIdentity.js'
+import { usePhaseMachine } from './usePhaseMachine.js'
 
 /**
  * Внутренний composable: config → начальное состояние партии.
@@ -13,6 +15,7 @@ export const useCreateGame = () => {
   const { normalizeGameSetup } = useNormalizeGameSetup()
   const { normalizePlayerSetup } = useNormalizePlayerSetup()
   const { createGameId, createSeed, stripSeed } = useGameIdentity()
+  const { drainPhases } = usePhaseMachine()
 
   const hasCardZones = (player) =>
     Array.isArray(player.deck) || Array.isArray(player.hand)
@@ -52,7 +55,7 @@ export const useCreateGame = () => {
     // TODO(v0+): seeded shuffle перед раздачей по seed
     const dealt = dealOpeningHands(players, game.rules.handSize)
 
-    return {
+    const initial = {
       id,
       map: game.map,
       players: dealt,
@@ -63,10 +66,15 @@ export const useCreateGame = () => {
       },
       currentPlayer: game.rules.startingPlayer,
       turn: 0,
+      actionsLeft: 0,
+      phase: PHASES.gameStart,
       winner: false,
       visibilityGrants: [],
       logSeq: 0,
     }
+
+    // Авто: gameStart → turnStart → turn
+    return drainPhases(initial)
   }
 
   return { createGame, isConfigError }
