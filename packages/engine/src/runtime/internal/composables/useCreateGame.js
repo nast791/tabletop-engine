@@ -73,7 +73,7 @@ export const useCreateGame = () => {
       logSeq: 0,
     }
 
-    // Авто: gameStart → turnStart → turn
+    // Останавливается на gameStart (интерактив: расстановка), пока хост не сдвинет фазу.
     return drainPhases(initial)
   }
 

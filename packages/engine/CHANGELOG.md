@@ -1,5 +1,23 @@
 # @nast791/engine
 
+## 0.4.2
+
+### Patch Changes
+
+- В `gameStart` view скрывает `position` чужих fighters до перехода в `turn`.
+
+## 0.4.1
+
+### Patch Changes
+
+- `gameStart` интерактивен (расстановка до ходов); apply принимает actions в gameStart|turn.
+
+## 0.4.0
+
+### Minor Changes
+
+- Хостовый реестр actions: `tabletopEngine.actions` → alias `#tabletop-host-actions`; apply: kernel, затем host.
+
 ## 0.3.0
 
 ### Minor Changes

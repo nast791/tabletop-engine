@@ -1,10 +1,11 @@
 import { CARD_ZONES } from '../../constants/player.js'
+import { PHASES } from '../../constants/phases.js'
 import { useZoneVisibility } from './useZoneVisibility.js'
 
 /**
  * Внутренний composable: полное state → view.
- * Карточные зоны маскируются только если они есть у игрока.
- * Прочий контент (fighters, items, class…) уходит as-is.
+ * Карточные зоны маскируются по visibility.
+ * В gameStart чужие fighters без position (расстановка скрыта до хода).
  */
 export const useGetView = () => {
   const { canSee } = useZoneVisibility()
@@ -16,6 +17,12 @@ export const useGetView = () => {
       count: see.count ? list.length : undefined,
     }
   }
+
+  const hideFighterPlacement = fighter => ({
+    ...fighter,
+    position: null,
+    startPosition: null,
+  })
 
   const maskPlayer = (state, player, viewerId) => {
     const publicFields = Object.fromEntries(
@@ -35,16 +42,25 @@ export const useGetView = () => {
       masked[`${zone}Count`] = result.count
     }
 
+    // Расстановка: чужие позиции скрыты до выхода из gameStart.
+    if (
+      state.phase === PHASES.gameStart &&
+      String(player.id) !== String(viewerId) &&
+      Array.isArray(masked.fighters)
+    ) {
+      masked.fighters = masked.fighters.map(hideFighterPlacement)
+    }
+
     return masked
   }
 
   const getView = (state, playerId) => {
-    if (!state?.players?.some((p) => String(p.id) === String(playerId))) {
+    if (!state?.players?.some(p => String(p.id) === String(playerId))) {
       throw new Error(`playerId "${playerId}" нет в этой партии`)
     }
 
     const grantsForViewer = (state.visibilityGrants ?? []).filter(
-      (g) => String(g.viewerId) === String(playerId),
+      g => String(g.viewerId) === String(playerId),
     )
 
     return {
@@ -61,7 +77,7 @@ export const useGetView = () => {
         visibility: state.rules.visibility,
       },
       map: { ...state.map },
-      players: state.players.map((p) => maskPlayer(state, p, playerId)),
+      players: state.players.map(p => maskPlayer(state, p, playerId)),
       winner: state.winner,
       visibilityGrants: grantsForViewer,
     }

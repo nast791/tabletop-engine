@@ -15,9 +15,15 @@ pnpm dlx --package @nast791/engine tabletop-engine setup
 ```js
 export default defineNuxtConfig({
   modules: ['@nast791/engine'],
-  tabletopEngine: { apiPrefix: '/api/tabletop' },
+  tabletopEngine: {
+    apiPrefix: '/api/tabletop',
+    // Хостовые actions (default export: { PLACE: fn, MOVE: fn, … })
+    actions: '#shared/actions/registry.js',
+  },
 })
 ```
+
+Handler: `(state, action, api) => state`. Сначала ищутся kernel-types, затем хост.
 
 ## Composables
 
@@ -69,10 +75,12 @@ export default defineNuxtConfig({
 
 Kernel-цикл: `gameStart` → `turnStart` → `turn` → `turnEnd` → … → `gameEnd`.
 
-- После `create` движок сам доходит до **`turn`** (промежуточные фазы не ждут UI).
-- Интерактивны только `turn` и `gameEnd`.
+- После `create` движок останавливается на **`gameStart`** (расстановка / подготовка).
+- Когда хост сдвигает фазу (например после PLACE всех бойцов → `turnStart`), drain доходит до **`turn`**.
+- Интерактивны: `gameStart`, `turn`, `gameEnd`.
+- В `gameStart` view скрывает `position` чужих fighters (открываются с `turn`).
 - Хуки `onGameStart` / `onTurnStart` / `onTurnEnd` / `onGameEnd` — пока no-op.
-- Контент-фазы (расстановка, атака…) — не в kernel.
+- Контент-фазы (атака…) — не в kernel.
 
 ## Kernel-actions
 
