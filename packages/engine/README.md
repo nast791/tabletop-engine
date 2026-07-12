@@ -156,3 +156,13 @@ await createFromSetup()
 $env:GITHUB_TOKEN = "ghp_…"   # PowerShell
 pnpm release
 ```
+
+## Тесты
+
+```bash
+pnpm test
+# или в пакете:
+pnpm --filter @nast791/engine test
+```
+
+Каталог: `packages/engine/tests/` (Vitest).
