@@ -1,5 +1,5 @@
 import { createCardEngine } from '../core/createCardEngine.js'
-import hostEffectsMod from '#tabletop-card-effects'
+import hostMod from '#tabletop-card-effects'
 
 /** Достать map type → handler из default export хоста. */
 export const pickHostEffects = (mod) => {
@@ -8,16 +8,22 @@ export const pickHostEffects = (mod) => {
   return { ...mod }
 }
 
+export const pickHostFacts = (mod) => {
+  if (!mod || typeof mod !== 'object') return {}
+  if (mod.facts && typeof mod.facts === 'object') return { ...mod.facts }
+  return {}
+}
+
 let engine = null
 
 /**
- * Singleton движка с эффектами хоста (#tabletop-card-effects).
- * Для server actions / Nitro и composable useCardEngine.
+ * Singleton движка с эффектами/фактами хоста (#tabletop-card-effects).
  */
 export const getCardEngine = () => {
   if (!engine) {
     engine = createCardEngine({
-      effects: pickHostEffects(hostEffectsMod),
+      effects: pickHostEffects(hostMod),
+      facts: pickHostFacts(hostMod),
     })
   }
   return engine

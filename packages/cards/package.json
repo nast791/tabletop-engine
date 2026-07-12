@@ -1,6 +1,6 @@
 {
   "name": "@nast791/cards",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Nuxt-модуль интерпретатора карт: триггеры → эффекты",
   "type": "module",
   "license": "MIT",

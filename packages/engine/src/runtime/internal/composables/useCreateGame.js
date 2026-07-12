@@ -75,6 +75,7 @@ export const useCreateGame = () => {
       movement: null,
       handDiscard: null,
       lastCombat: null,
+      effectPrompt: null,
     }
 
     // Останавливается на gameStart (интерактив: расстановка), пока хост не сдвинет фазу.

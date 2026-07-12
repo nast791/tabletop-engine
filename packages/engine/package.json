@@ -1,6 +1,6 @@
 {
   "name": "@nast791/engine",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Nuxt-модуль движка настольной партии: createGame, apply, getView",
   "type": "module",
   "license": "MIT",

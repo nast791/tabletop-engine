@@ -74,6 +74,7 @@ export const useGetView = () => {
       movement: state.movement ?? null,
       handDiscard: state.handDiscard ?? null,
       lastCombat: state.lastCombat ?? null,
+      effectPrompt: state.effectPrompt ?? null,
       rules: {
         startingPlayer: state.rules.startingPlayer,
         actionsPerTurn: state.rules.actionsPerTurn,
