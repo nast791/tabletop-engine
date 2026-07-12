@@ -25,6 +25,10 @@ const CATALOG = {
     name: '@nast791/engine',
     scriptKey: 'tabletop-engine:update:engine',
   },
+  cards: {
+    name: '@nast791/cards',
+    scriptKey: 'tabletop-engine:update:cards',
+  },
 }
 
 const SCRIPT_UPDATE_ALL = 'tabletop-engine:update'
