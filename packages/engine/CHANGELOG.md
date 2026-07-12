@@ -1,5 +1,11 @@
 # @nast791/engine
 
+## 0.4.4
+
+### Patch Changes
+
+- Vitest: папка tests/ в каждом пакете, скрипт pnpm test.
+
 ## 0.4.3
 
 ### Patch Changes

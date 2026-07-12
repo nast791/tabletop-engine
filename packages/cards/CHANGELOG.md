@@ -1,5 +1,11 @@
 # @nast791/cards
 
+## 0.2.1
+
+### Patch Changes
+
+- Vitest: папка tests/ в каждом пакете, скрипт pnpm test.
+
 ## 0.2.0
 
 ### Minor Changes

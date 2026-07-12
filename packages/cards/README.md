@@ -104,3 +104,11 @@ cards.resolve(card, 'onPlay', { state, player, api })
 `TRIGGERS`: `onPlay`, `onAttack`, `onDefend`, `onMove`, `onMoveConfirm`, `onTurnStart`, `onTurnEnd`, `onDiscard`.
 
 Примитивы вроде `DEAL_DAMAGE` / `CHECK_WINNER` остаются в игре.
+
+## Тесты
+
+```bash
+pnpm --filter @nast791/cards test
+```
+
+Каталог: `packages/cards/tests/` (Vitest).

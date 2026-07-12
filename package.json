@@ -9,6 +9,7 @@
   "scripts": {
     "build": "pnpm -r --filter=@nast791/* run --if-present build",
     "clean": "pnpm -r --filter=@nast791/* run --if-present clean",
+    "test": "pnpm -r --filter=@nast791/* run test",
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only && pnpm install",
     "release": "pnpm build && changeset publish && node scripts/github-releases-from-changelog.mjs",
@@ -16,6 +17,7 @@
     "release:notes": "node scripts/github-releases-from-changelog.mjs"
   },
   "devDependencies": {
-    "@changesets/cli": "2.31.0"
+    "@changesets/cli": "2.31.0",
+    "vitest": "4.1.10"
   }
 }
