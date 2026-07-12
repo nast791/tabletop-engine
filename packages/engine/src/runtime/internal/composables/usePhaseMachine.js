@@ -55,6 +55,7 @@ export const usePhaseMachine = (options = {}) => {
           movement: null,
           handDiscard: null,
           lastCombat: null,
+          effectPrompt: null,
         }
         const afterHook = hooks.onTurnStart(prepared)
         return { ...afterHook, phase: PHASES.turn }

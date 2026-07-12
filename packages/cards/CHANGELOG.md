@@ -1,5 +1,11 @@
 # @nast791/cards
 
+## 0.3.0
+
+### Minor Changes
+
+- Cards: facts, evaluateTriggers, dispatch/resume и effectPrompt. Engine: хост-хуки фаз (onPhase/onTurnStart…), пауза effectPrompt и RESOLVE_EFFECT в apply.
+
 ## 0.2.1
 
 ### Patch Changes

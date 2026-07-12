@@ -122,6 +122,22 @@ describe('matchWhen / runSteps', () => {
     )
     expect(ctx.sum).toBe(2)
   })
+
+  it('runSteps: pause → remainingSteps + wait', () => {
+    const ctx = runSteps(
+      [{ type: 'ASK' }, { type: 'ADD', n: 5 }],
+      { sum: 0 },
+      {
+        ASK: c => ({ ...c, pause: true, wait: { kind: 'PROMPT' }, asked: true }),
+        ADD: (c, { n }) => ({ ...c, sum: c.sum + n }),
+      },
+    )
+    expect(ctx.asked).toBe(true)
+    expect(ctx.pause).toBe(false)
+    expect(ctx.wait.kind).toBe('PROMPT')
+    expect(ctx.remainingSteps).toEqual([{ type: 'ADD', n: 5 }])
+    expect(ctx.sum).toBe(0)
+  })
 })
 
 describe('constants', () => {
